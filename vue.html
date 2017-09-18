@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>vue</title>
+	<meta charset="utf-8">
+	<script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+	<!-- 简单的数据绑定显示 -->
+	<div id="app">
+		{{ message }}
+	</div>
+	<script type="text/javascript">
+		var app = new Vue({
+			el: '#app',
+			data: {
+				msg: 'What a fuck!',
+				message: 'Hello vue.js!',
+				tick: 0
+			}
+		});
+		function tick() {
+			//app._data.message = "{" + app._data.message + "}";
+			app.tick++;
+			if (app.tick%2 == 0) {
+				app.message = "{ " + app.msg + ": " + app.tick + " }";
+			}else {
+				app.message = app.msg;
+			}
+			setTimeout("tick()", 1000);
+		}
+		tick();
+	</script>
+
+
+	<!-- 这里该指令的作用是：“将这个元素节点的 title 属性和 Vue 实例的 message 属性保持一致” -->
+	<div id="app-2">
+	  <span v-bind:title="message">
+	    鼠标悬停几秒钟查看此处动态绑定的提示信息！
+	  </span>
+	</div>
+	<script type="text/javascript">
+		var app2 = new Vue({
+		  el: '#app-2',
+		  data: {
+		    message: '页面加载于 ' + new Date().toLocaleString()
+		  }
+		})
+	</script>
+
+
+	<!-- 继续在控制台设置 app3.seen = false，你会发现“现在你看到我了”消失了。 -->
+	<div id="app-3">
+	  <p v-if="seen">现在你看到我了</p>
+	</div>
+	<script type="text/javascript">
+		var app3 = new Vue({
+		  el: '#app-3',
+		  data: {
+		    seen: true
+		  }
+		})		
+		setTimeout(function(){
+			app3.seen = false;
+		}, 1000);
+	</script>
+
+
+	<!-- v-for 指令可以绑定数组的数据来渲染一个项目列表 -->
+	<div id="app-4">
+	  <ol>
+	    <li v-for="todo in todos">
+	      {{ todo.text + "  索引=" + todos.indexOf(todo) }}
+	    </li>
+	  </ol>
+	</div>
+	<script type="text/javascript">
+		var app4 = new Vue({
+		  el: '#app-4',
+		  data: {
+		    todos: [
+		      { text: '学习 JavaScript' },
+		      { text: '学习 Vue' },
+		      { text: '整个牛项目' }
+		    ]
+		  }
+		})		
+		app4.todos.push({ text: '新项目' })
+	</script>
+
+	<!-- 为了让用户和你的应用进行互动，我们可以用 v-on 指令绑定一个事件监听器，通过它调用我们 Vue 实例中定义的方法, methods方法里面的this已经正确的变为vue的实例 -->
+	<div id="app-5">
+	  <p>{{ message }}</p>
+	  <button v-on:click="reverseMessage">逆转消息</button>
+	</div>
+	<script type="text/javascript">
+		var app5 = new Vue({
+		  el: '#app-5',
+		  data: {
+		    message: 'Hello Vue.js!'
+		  },
+		  methods: {
+		    reverseMessage: function () {
+		      this.message = this.message.split('').reverse().join('')
+		      console.log("this ? ", this === app5);
+		    }
+		  }
+		})		
+	</script>
+
+
+	<!-- Vue 还提供了 v-model 指令，它能轻松实现表单输入和应用状态之间的双向绑定。 -->
+	<div id="app-6">
+	  <p>v-model双向绑定☞： {{ message }} </p>
+	  <!-- 
+	   vue.js:482 [Vue warn]: Error compiling template:
+	   - text="{{ message }}": Interpolation inside attributes has been removed. Use v-bind or the colon shorthand instead. For example, instead of <div id="{{ val }}">, use <div :id="val">. -->
+	  <!-- <input v-model="message" text="{{ message }}"></input> -->
+	  <!-- <input v-model="message" v-bind:text="message"></input> -->
+	  <!-- <input v-model="message" v-bind:value="message"></input> -->
+	  <input v-bind:value="message" disabled="disabled"></input> 
+	  <br/>
+	  <input v-model:value="message"></input>
+	  <br/>
+	  <input v-model="message"></input>
+	</div>
+	<script type="text/javascript">
+		var app6 = new Vue({
+		  el: '#app-6',
+		  data: {
+		    message: 'Hello Vue!'
+		  }
+		})		
+	</script>
+
+
+	<!-- 在 Vue 中注册组件很简单 -->
+	<ol id="app-7s">
+		<li>Hello list item</li>
+	  <!-- 创建一个 todo-item-sample 组件的实例 -->
+	  <todo-item-sample></todo-item-sample>
+	</ol>
+	<script type="text/javascript">
+		// 定义名为 todo-item-sample 的新组件
+		Vue.component('todo-item-sample', {
+		  template: '<li>这是个固定的不能改的待办项</li>'
+		})
+		//在js中控制dom使用vue的响应系统， 才会让组件正确应用
+		var app7_s = new Vue({
+			el: '#app-7s',
+			// data: {}
+		})
+	</script>
+
+
+	<!-- 但是我们已经设法将应用分割成了两个更小的单元，子单元通过 props 接口实现了与父单元很好的解耦。我们现在可以进一步为我们的 todo-item 组件实现更复杂的模板和逻辑的改进，而不会影响到父单元。 -->
+	<div id="app-7">
+	  <ol>
+	    <!--
+	      现在我们为每个 todo-item 提供 todo 对象
+	      todo 对象是变量，即其内容可以是动态的。
+	      我们也需要为每个组件提供一个“key”，晚些时候我们会做个解释。
+	    -->
+	    <todo-item
+	      v-for="item in groceryList"
+	      v-bind:todo="item"
+	      v-bind:key="item.id">
+	    </todo-item>
+	  </ol>
+	</div>
+	<script type="text/javascript">
+		Vue.component('todo-item', {
+		  // todo-item 组件现在接受一个
+		  // "prop"，类似于一个自定义属性
+		  // 这个属性名为 todo。
+		  props: ['todo'],
+		  template: '<li>{{ todo.text }}</li>'
+		})
+		var app7 = new Vue({
+		  el: '#app-7',
+		  data: {
+		    groceryList: [
+		      { id: 0, text: '蔬菜' },
+		      { id: 1, text: '奶酪' },
+		      { id: 2, text: '随便其他什么人吃的东西' }
+		    ]
+		  }
+		})
+	</script>
+
+
+	<!-- 每个 Vue 应用都是通过 Vue 函数创建一个新的 Vue 实例开始的 虽然没有完全遵循 MVVM 模型，Vue 的设计无疑受到了它的启发。因此在文档中经常会使用 vm (ViewModel 的简称) 这个变量名表示 Vue 实例-->
+	<script type="text/javascript">
+		//当你创建一个 Vue 实例时，你传入一个选项对象。这篇教程主要描述的就是如何使用这些选项来创建你想要的行为。作为参考，你也可以在 API 文档中浏览完整的选项列表。
+		// 选项
+		var vm_option = {
+			//el: 'dom选择器',
+			data: {
+				type: "类型：Object | Function ",
+				limit: "限制：组件的定义只接受 function。",
+				detail: "详细：Vue 实例的数据对象。Vue 将会递归将 data 的属性转换为 getter/setter，从而让 data 的属性能够响应数据变化。对象必须是纯粹的对象 (含有零个或多个的 key/value 对)：浏览器 API 创建的原生对象，原型上的属性会被忽略。大概来说，data 应该只能是数据 - 不推荐观察拥有状态行为的对象。一旦观察过，不需要再次在数据对象上添加响应式属性。因此推荐在创建实例之前，就声明所有的根级响应式属性。",
+			},
+			props: ['msg'],
+			propsData: {
+				msg: "只用于 new 创建的实例中。详细：创建实例时传递 props。主要作用是方便测试。"
+			},
+			computed: {
+
+			},
+
+		};
+		var vm_0 = new Vue(vm_option);
+	</script>
+
+
+	<div id="test">Vue 实例
+		<p>a = {{ a }}, b = {{ b }}</p>
+	</div>
+	<script type="text/javascript">
+		// 我们的数据对象
+		var data = { a: 1 }
+		// 该对象被加入到一个 Vue 实例中
+		var vm = new Vue({
+			//el: '#test',
+		  	data: data
+		})
+		// 他们引用相同的对象！
+		vm.a === data.a // => true
+		vm._data === data // => true
+		vm.$data === data // => true
+		// 设置属性也会影响到原始数据
+		vm.a = 2
+		data.a // => 2
+		// ... and vice-versa
+		data.a = 3
+		vm.a // => 3
+		//值得注意的是只有当实例被创建时 data 中存在的属性是响应式的。也就是说如果你添加一个新的属性
+		//绑定dom元素需要在Vue对象初始化时进行
+		vm.el = '#test'
+		//那么对 b 的改动将不会触发任何视图的更新。如果你知道你会在晚些时候需要一个属性，但是一开始它为空或不存在，那么你仅需要设置一些初始值
+		vm.b = 'hi'
+
+	</script>
+
+</body>
+</html>
