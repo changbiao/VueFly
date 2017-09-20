@@ -305,7 +305,6 @@
 			  console.log("vm的数据字段 a 改变了", this.a);
 			})
 			// 他们引用相同的对象！
-			window.console.log("xxxxx");
 			console.log("vm.a === data.a", vm.a === data.a) // => true
 			console.log("vm._data === data", vm._data === data) // => true
 			console.log("vm.$data === data", vm.$data === data) // => true
@@ -347,7 +346,66 @@
 		结合响应系统，在应用状态改变时，Vue 能够智能地计算出重新渲染组件的最小代价并应用到 DOM 操作上。
 		如果你熟悉虚拟 DOM 并且偏爱 JavaScript 的原始力量，
 		你也可以不用模板，直接写渲染 (render) 函数，使用可选的 JSX 语法。 -->
-
+		<div id="template-test-0">
+			<h5>纯手写H5标签!</h5>
+			<anchored-heading :level="4">模板h[number]标签!</anchored-heading>
+			<anchored-heading v-bind:level="d_level">模板h[number]标签!</anchored-heading>
+			<!-- vue.js:488 [Vue tip]: <anchored-heading v-for="l in levels">: component lists rendered with v-for should have explicit keys. See https://vuejs.org/guide/list.html#key for more info. -->
+			<!-- <anchored-heading v-for="l in levels" v-bind:level="l" >Hello world!</anchored-heading> -->
+			<!-- <anchored-heading v-for="l in levels" v-bind:level="l" v-bind:key="l" >Hello world!</anchored-heading> -->
+			<anchored-heading v-for="l in d_levels" :level="l" :key="l" >批量模板h[number]标签!</anchored-heading>
+		</div>
+		<script type="text/javascript">
+			Vue.component('anchored-heading', {
+			  render: function (createElement) {
+			  	// return createElement(
+			   	//   'h' + this.level,   // tag name 标签名称
+			   	//   this.$slots.default // 子组件中的阵列
+			   	// )
+			  	//function createElement (context, tag, data, children, normalizationType, alwaysNormalize)
+			  	//createElement接受的第一个参数就是标签名，后面的参数都是可选的，他会根据类型来自动匹配。这里的第二个参数是一个对应属性的数据对象，是一个{Object}。第三个参数是子节点(VNodes)，{String | Array}，如果是String的话类似于innerHTML的意思
+			    let cb_vNode = createElement(
+			      'h' + this.level,   // tag name 标签名称
+			      //阵列？ this.$slots.default => VNode
+			      {
+			      	attrs: {
+            			name: 'heading-' + this.level,
+            			href: '#' + 'heading-' + this.level
+			      	},
+			      	style: {
+			      		margin: '2px',
+			      		'border-color': 'red',
+			      		'border-width': '1px',
+			      		'border-style': 'dashed',
+			      	},
+			      	on: {  
+                    	click: function(event){  
+                    		//this === window //===> true
+                    		console.log("this === window :", this === window)
+                        	alert(event.target.innerText) 
+                    	} 
+                    } 
+			      },
+			      this.$slots.default[0].text + " 级别：" + this.level
+			    )
+			    return cb_vNode;
+			  },
+			  props: {
+			    level: {
+			      type: Number,
+			      required: true
+			    }
+			  }
+			})
+			var tvm0 = new Vue({
+				el: '#template-test-0',
+				data: {
+					d_level: 3,
+					d_levels: [5, 4, 3],
+				}
+			})
+		</script>
+		
 		
     </body>
 </html>
