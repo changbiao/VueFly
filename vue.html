@@ -3,13 +3,51 @@
     <head>
         <title>vue</title>
         <meta charset="utf-8">
+        <!-- 适配移动端 http://www.cnblogs.com/mingjixiaohui/p/5314373.html -->
+        <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <script type="javascript"> 
+        (function(doc, win){
+			var docE1 = doc.documentElement,
+				resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+				recalc = function(){
+					var clientWidth = docE1.clientWidth;
+					if(!clientWidth) return;
+					docE1.style.fontSize = 16 * (clientWidth / 320) + 'px';            
+				};
+
+			if (!doc.addEventListener) return;
+			win.addEventListener(resizeEvt,recalc,false);
+			doc.addEventListener('DOMContentLoaded',recalc,false);
+		})(document,window);
+        </script>
         <script src="https://unpkg.com/vue"></script>
+        <style>
+			html {
+				/* 适配移动端 根据指定字体计算，并且处理px->rem */
+				font-size: 16px;
+				margin: 0px;
+			}
+        	*{
+				margin: 2px; 
+				/* padding: 8px; */
+				border-top-color: #2196F3;
+				border-right-color: #00897B;
+				border-bottom-color: #FF9800;
+				border-left-color: #9C27B0;
+			    border-width: 1px;
+			    border-style: solid;
+			    border-radius: 4px;
+			    font-family: monospace;
+        	} 
+        	* button {
+        		background: linear-gradient(to bottom,#ebebeb,#d5d5d5);
+        	}
+        </style>
     </head>
     <body>
         <!--https://cn.vuejs.org/v2/guide/index.html-->
         <!-- 简单的数据绑定显示 -->
-        <div id="app">{{ message }}
-	</div>
+        <div id="app">{{ message }}</div>
         <script type="text/javascript">
             
             
@@ -18,7 +56,7 @@
 		var app = new Vue({
 			el: '#app',
 			data: {
-				msg: 'What The Fuck!',
+				msg: 'What The Fuck! Think, Study.',
 				message: 'Hello vue.js!',
 				tick: 0
 			}
@@ -29,7 +67,7 @@
 			//substr(start, size), substring(start, stop), slice(start, stop|length-size)
 			var index = app.tick%app.msg.length
 			app.message = app.msg.substr(index) + "\ \t" + app.msg.slice(0, index);
-			setTimeout("tick()", 250);
+			setTimeout("tick()", 150);
 		}
 		tick();
 	
@@ -60,7 +98,7 @@
         </script>
         <!-- 继续在控制台设置 app3.seen = false，你会发现“现在你看到我了”消失了。 -->
         <div id="app-3">
-            <p v-if="seen">现在你看到我了</p>
+            <p v-if="seen" style="color: red;">现在你看到我了</p>
         </div>
         <script type="text/javascript">
             
@@ -84,8 +122,7 @@
         <!-- v-for 指令可以绑定数组的数据来渲染一个项目列表 -->
         <div id="app-4">
             <ol>
-                <li v-for="todo in todos">{{ todo.text + "  索引=" + todos.indexOf(todo) }}
-	    </li>
+                <li v-for="todo in todos">{{ todo.text + "  索引=" + todos.indexOf(todo) }}</li>
             </ol>
         </div>
         <script type="text/javascript">
@@ -103,8 +140,14 @@
 		    ]
 		  }
 		})
-		app4.todos.push({ text: '新项目' })
-		setTimeout("app4.todos.pop()", 2000)
+		var tick_todos_count = 0;
+		function tick_todos() {
+			tick_todos_count ++;
+			app4.todos.push({ text: '新项目:'+tick_todos_count })
+			//setTimeout("tick_todos();", 1000)
+			setTimeout("app4.todos.pop();tick_todos();", 1000)
+		}
+		tick_todos()
 	
         
         
@@ -146,11 +189,13 @@
             <!-- <input v-model="message" text="{{ message }}"></input> -->
             <!-- <input v-model="message" v-bind:text="message"></input> -->
             <!-- <input v-model="message" v-bind:value="message"></input> -->
-            <input v-bind:value="message" disabled="disabled"></input>
-            <br/>
-            <input v-model:value="message"></input>
-            <br/>
-            <input v-model="message"></input>
+            <div style="padding-right: 8px;">
+				<input v-bind:value="message" disabled="disabled" style="width: 100%;"></input>
+				<br/>
+				<input v-model:value="message"></input>
+				<br/>
+				<input v-model="message"></input>
+            </div>
         </div>
         <script type="text/javascript">
             
@@ -169,11 +214,13 @@
         
         </script>
         <!-- 在 Vue 中注册组件很简单 -->
-        <ol id="app-7s">
-            <li>Hello list item</li>
-            <!-- 创建一个 todo-item-sample 组件的实例 -->
-            <todo-item-sample></todo-item-sample>
-        </ol>
+        <div id="app-7s">
+			<ol>
+				<li>Hello list item</li>
+				<!-- 创建一个 todo-item-sample 组件的实例 -->
+				<todo-item-sample></todo-item-sample>
+			</ol>
+        </div>
         <script type="text/javascript">
             
             
@@ -268,8 +315,7 @@
         
         </script>
         <div id="test">
-            Vue 实例
-		<p>a = {{ a }}, b = {{ b }}</p>
+		   <p>Vue实例 a={{ a }}, b={{ b }}</p>
         </div>
         <script type="text/javascript">
             
@@ -339,21 +385,15 @@
         
         
         </script>
-        <!-- https://cn.vuejs.org/v2/guide/syntax.html -->
-        <!-- Vue.js 使用了基于 HTML 的模板语法，允许开发者声明式地将 DOM 绑定至底层 Vue 实例的数据。
-		所有 Vue.js 的模板都是合法的 HTML ，所以能被遵循规范的浏览器和 HTML 解析器解析。
-		在底层的实现上，Vue 将模板编译成虚拟 DOM 渲染函数。
-		结合响应系统，在应用状态改变时，Vue 能够智能地计算出重新渲染组件的最小代价并应用到 DOM 操作上。
-		如果你熟悉虚拟 DOM 并且偏爱 JavaScript 的原始力量，
-		你也可以不用模板，直接写渲染 (render) 函数，使用可选的 JSX 语法。 -->
+		<!-- https://cn.vuejs.org/v2/guide/render-function.html -->
 		<div id="template-test-0">
-			<h5>纯手写H5标签!</h5>
-			<anchored-heading :level="4">模板h[number]标签!</anchored-heading>
-			<anchored-heading v-bind:level="d_level">模板h[number]标签!</anchored-heading>
+			<h5>纯手写标签 &lt;h5&gt; </h5>
+			<anchored-heading :level="4">模板渲染标签</anchored-heading>
+			<anchored-heading v-bind:level="d_level">模板渲染标签</anchored-heading>
 			<!-- vue.js:488 [Vue tip]: <anchored-heading v-for="l in levels">: component lists rendered with v-for should have explicit keys. See https://vuejs.org/guide/list.html#key for more info. -->
 			<!-- <anchored-heading v-for="l in levels" v-bind:level="l" >Hello world!</anchored-heading> -->
 			<!-- <anchored-heading v-for="l in levels" v-bind:level="l" v-bind:key="l" >Hello world!</anchored-heading> -->
-			<anchored-heading v-for="l in d_levels" :level="l" :key="l" >批量模板h[number]标签!</anchored-heading>
+			<anchored-heading v-for="l in d_levels" :level="l" :key="l" >模板批量渲染标签</anchored-heading>
 		</div>
 		<script type="text/javascript">
 			Vue.component('anchored-heading', {
@@ -377,6 +417,9 @@
 			      		'border-color': 'red',
 			      		'border-width': '1px',
 			      		'border-style': 'dashed',
+			      		'background-color': '#8BC34A',
+			      		"text-align": "center",
+					    color: '#F44336',
 			      	},
 			      	on: {  
                     	click: function(event){  
@@ -386,7 +429,7 @@
                     	} 
                     } 
 			      },
-			      this.$slots.default[0].text + " 级别：" + this.level
+			      this.$slots.default[0].text + " <h" + this.level + ">"
 			    )
 			    return cb_vNode;
 			  },
@@ -406,6 +449,64 @@
 			})
 		</script>
 		
-		
+		<!-- https://cn.vuejs.org/v2/guide/syntax.html -->
+        <!-- Vue.js 使用了基于 HTML 的模板语法，允许开发者声明式地将 DOM 绑定至底层 Vue 实例的数据。
+		所有 Vue.js 的模板都是合法的 HTML ，所以能被遵循规范的浏览器和 HTML 解析器解析。
+		在底层的实现上，Vue 将模板编译成虚拟 DOM 渲染函数。
+		结合响应系统，在应用状态改变时，Vue 能够智能地计算出重新渲染组件的最小代价并应用到 DOM 操作上。
+		如果你熟悉虚拟 DOM 并且偏爱 JavaScript 的原始力量，
+		你也可以不用模板，直接写渲染 (render) 函数，使用可选的 JSX 语法。 -->
+		<div id="template-test-1">
+			<!-- 数据绑定最常见的形式就是使用“Mustache”语法 (双大括号) 的文本插值 -->
+			<span>{{ msg }}</span> 
+			<!-- 通过使用 v-once 指令，你也能执行一次性地插值，当数据改变时，插值处的内容不会更新。但请留心这会影响到该节点上所有的数据绑定 -->
+			<span v-once>{{ msg }}</span>
+			<!-- 双大括号会将数据解释为普通文本，而非 HTML 代码。为了输出真正的 HTML ，你需要使用 v-html 指令,
+			这个 div 的内容将会被替换成为属性值 rawHtml，直接作为 HTML —— 会忽略解析属性值中的数据绑定。
+			注意，你不能使用 v-html 来复合局部模板，因为 Vue 不是基于字符串的模板引擎。
+			反之，对于用户界面 (UI)，组件更适合作为可重用和可组合的基本单位。
+			 -->
+			<div v-html="rawHtml"></div>
+			<!-- mustache 语法不能作用在 HTML 特性上，遇到这种情况应该使用 v-bind 指令： -->
+			<div v-bind:id="dynamicId"></div>
+			<!-- 这同样适用于布尔类特性，如果求值结果是 falsy 的值 (译者注：falsy 不是 false)，
+			https://developer.mozilla.org/zh-CN/docs/Glossary/Falsy 如果不能转换为boolean类型
+			则该特性将会被删除： -->
+			<button v-bind:disabled="isButtonDisabled" v-on:click="btn_func">功能按钮</button>
+			<button v-bind:disabled="isButton2Disabled" v-on:click="btn_clickable">解除禁用</button>
+		</div>
+		<script>
+			var tvm1 = new Vue({
+				el: "#template-test-1",
+				data: {
+					msg: "这是初始文本",
+					rawHtml: "<p style='color: red;'>html标签文本</p>",
+					dynamicId: "this_is_a_tag_id",
+					isButtonDisabled: false,
+					isButton2Disabled: true
+				},
+				methods: {
+					btn_func: function (e) {
+						this.isButtonDisabled = true;
+						this.isButton2Disabled = false;
+						alert("功能按钮已经被禁用");
+					},
+					btn_clickable: function (e) {
+						this.isButtonDisabled = false;
+						this.isButton2Disabled = true;
+					}
+				}
+			})
+			tvm1.msg = "变动了的文本数据"
+		</script>
+ 		<div style="background-color: #FFF7DC; border: 2px solid #FFBFBF; ">
+			<div style="float:left;"><span>返回</span></div>
+			<div style="float:left;"><span>返回</span></div>
+			<div style="float:left;"><span>返回</span></div>
+			<div >保存1</div>
+			<div >保存2</div>
+			<div style="float:right;">保存4</div>
+			<div >保存3</div>
+    	</div>
     </body>
 </html>
